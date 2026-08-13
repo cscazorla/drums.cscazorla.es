@@ -18,26 +18,39 @@ If you already cloned without submodules: `git submodule update --init`.
 
 ## Creating an exercise
 
-1. Start the editor:
+1. Start the site and open the editor at
+   [localhost:4321/groove/](http://localhost:4321/groove/):
 
    ```sh
-   npm run dev:groove          # http://localhost:5173
+   npm run dev
    ```
+
+   One server for both the editor and the site. It serves the *compiled* copy
+   of Groove, so run `npm run build:groove` once beforehand (and again after
+   updating the submodule).
+
+   Alternatively `npm run dev:groove` runs Groove's own dev server on
+   [localhost:5173](http://localhost:5173) straight from the submodule
+   sources, with no build step. Either one produces the same URLs.
 
 2. Build the groove. The URL updates by itself: the whole exercise is encoded
    in it.
 
-3. Copy the URL and save it:
+3. Copy the URL from the address bar and save it:
 
    ```sh
    npm run exercise:add -- \
-     --url 'http://localhost:5173/#/g/BFoAAEQBJAcggggggggAQABAQABAAA' \
+     --url 'http://localhost:4321/groove/#/g/BFoAAEQBJAcggggggggAQABAQABAAA' \
      --category coordination \
      --title 'Linear exercise #1' \
      --tags linear,independence \
      --notes 'Start at 60 bpm, go up in steps of 5.' \
      --difficulty 3
    ```
+
+   Paste the URL as-is. `--url` only cares about the `#/g/<payload>` part, so
+   any of these work: either dev server, the deployed site, an
+   `#/embed/g/<payload>` link, or a bare payload with no URL around it.
 
    Writes `exercises/coordination/linear-exercise-1.json`.
 
@@ -55,12 +68,8 @@ If you already cloned without submodules: `git submodule update --init`.
    Note the `--` after the script name: without it npm swallows the flags and
    the script never sees them.
 
-4. See it on the site:
-
-   ```sh
-   npm run build:groove        # once, or after updating the submodule
-   npm run dev                 # http://localhost:4321
-   ```
+4. It shows up on the index at [localhost:4321](http://localhost:4321/)
+   straight away — the dev server picks up the new file, no restart needed.
 
 ## Running the site
 
