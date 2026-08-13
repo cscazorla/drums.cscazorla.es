@@ -1,12 +1,12 @@
 # drums.cscazorla.es
 
-Biblioteca personal de ejercicios de batería. Los ejercicios se crean con el
-editor [Groove](https://github.com/fguisso/groove) en local, se guardan como
-ficheros `.json` versionados en git, y se publican como sitio estático.
+Personal library of drum exercises. Exercises are created locally with the
+[Groove](https://github.com/fguisso/groove) editor, saved as `.json` files
+tracked in git, and published as a static site.
 
-Sin base de datos y sin backend: cada ejercicio es un fichero.
+No database and no backend: every exercise is a file.
 
-## Puesta en marcha
+## Getting started
 
 ```sh
 git clone --recurse-submodules git@github.com:cscazorla/drums.cscazorla.es.git
@@ -14,20 +14,20 @@ cd drums.cscazorla.es
 npm install
 ```
 
-Si ya lo habías clonado sin submodules: `git submodule update --init`.
+If you already cloned without submodules: `git submodule update --init`.
 
-## Crear un ejercicio
+## Creating an exercise
 
-1. Levanta el editor:
+1. Start the editor:
 
    ```sh
    npm run dev:groove          # http://localhost:5173
    ```
 
-2. Construye el groove. La URL se actualiza sola: todo el ejercicio va
-   codificado en ella.
+2. Build the groove. The URL updates by itself: the whole exercise is encoded
+   in it.
 
-3. Copia la URL y guárdala:
+3. Copy the URL and save it:
 
    ```sh
    npm run exercise:add -- \
@@ -35,55 +35,58 @@ Si ya lo habías clonado sin submodules: `git submodule update --init`.
      --category coordination \
      --title 'Linear exercise #1' \
      --tags linear,independence \
-     --notes 'Empezar a 60 bpm, subir de 5 en 5.' \
+     --notes 'Start at 60 bpm, go up in steps of 5.' \
      --difficulty 3
    ```
 
-   Escribe `exercises/coordination/linear-exercise-1.json`.
+   Writes `exercises/coordination/linear-exercise-1.json`.
 
    | Flag | |
    |---|---|
-   | `--url` | obligatorio. URL del editor o payload pelado |
-   | `--category` | obligatorio. Una de las de `categories.json` |
-   | `--title` | obligatorio |
-   | `--tags` | separadas por comas |
-   | `--notes` | texto libre, se muestra en la ficha |
+   | `--url` | required. Editor URL, or a bare payload |
+   | `--category` | required. One of those in `categories.json` |
+   | `--title` | required |
+   | `--tags` | comma-separated |
+   | `--notes` | free text, shown on the exercise page |
    | `--difficulty` | 1–5 |
-   | `--slug` | nombre de fichero, por defecto se deriva del título |
-   | `--force` | sobrescribir si ya existe |
+   | `--slug` | file name, derived from the title by default |
+   | `--force` | overwrite if it already exists |
 
-4. Míralo en el sitio:
+   Note the `--` after the script name: without it npm swallows the flags and
+   the script never sees them.
+
+4. See it on the site:
 
    ```sh
-   npm run build:groove        # una vez, o tras actualizar el submodule
+   npm run build:groove        # once, or after updating the submodule
    npm run dev                 # http://localhost:4321
    ```
 
-## Ver el sitio
+## Running the site
 
 ```sh
-npm run dev          # servidor de desarrollo de Astro
-npm run build        # build de producción completo
-npm run check        # valida todos los ejercicios
+npm run dev          # Astro dev server
+npm run build        # full production build
+npm run check        # validate every exercise
 ```
 
-`npm run build` compila Groove, valida los ejercicios y genera el sitio. Un
-ejercicio corrupto rompe el build en vez de llegar a producción.
+`npm run build` compiles Groove, validates the exercises and generates the
+site. A corrupt exercise breaks the build instead of reaching production.
 
-## Formato de un ejercicio
+## Exercise format
 
 ```jsonc
 {
   "title": "Basic rock #1",
   "category": "grooves",
   "tags": ["rock", "beginner"],
-  "notes": "Hi-hat en corcheas, caja en 2 y 4.",
+  "notes": "Hi-hat on eighths, snare on 2 and 4.",
   "difficulty": 1,
   "createdAt": "2026-08-13",
 
-  "payload": "BFoAAEQBJAcggggggggAQABAQABAAA",   // derivado
+  "payload": "BFoAAEQBJAcggggggggAQABAQABAAA",   // derived
 
-  "groove": {                                     // fuente de verdad
+  "groove": {                                     // source of truth
     "timeSig": [4, 4], "division": 16, "measures": 1, "tempo": 90,
     "voices": {
       "hh": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
@@ -94,43 +97,44 @@ ejercicio corrupto rompe el build en vez de llegar a producción.
 }
 ```
 
-Se guardan **los dos**: `groove` es la fuente de verdad (legible, y en un
-`git diff` se ve qué nota se movió) y `payload` es lo que consume el editor.
+**Both** are stored: `groove` is the source of truth (readable, and a
+`git diff` shows which note moved) and `payload` is what the editor consumes.
 
-El README de Groove avisa de que el formato del payload no es un contrato
-estable. Por eso, tras actualizar el submodule:
+Groove's README warns that the payload format is not a stable contract. So,
+after updating the submodule:
 
 ```sh
-npm run exercise:reencode --dry-run   # ver qué cambiaría
-npm run exercise:reencode             # regenerar todos los payloads
+npm run exercise:reencode -- --dry-run   # preview what would change
+npm run exercise:reencode                # regenerate every payload
 ```
 
-Como `groove` no depende del codec, los ejercicios sobreviven a un cambio de
-formato de upstream.
+Because `groove` does not depend on the codec, exercises survive a format
+change upstream.
 
-## Categorías
+## Categories
 
-Se definen en `categories.json`, que controla a la vez las categorías válidas,
-sus etiquetas y el orden de las secciones del índice. Añadir una categoría es
-añadir una entrada ahí y crear la carpeta en `exercises/`.
+Defined in `categories.json`, which controls the valid categories, their
+labels and the order of the sections on the index page all at once. Adding a
+category means adding an entry there and creating the folder under
+`exercises/`.
 
-## Estructura
+## Layout
 
 ```
 apps/
-  groove/        submodule → fguisso/groove. NO se edita.
-  web/           sitio Astro
-exercises/       los ejercicios, una carpeta por categoría
-scripts/         CLI de autoría y validación
-categories.json  categorías y su orden
+  groove/        submodule → fguisso/groove. Never edited.
+  web/           Astro site
+exercises/       the exercises, one folder per category
+scripts/         authoring and validation CLI
+categories.json  categories and their order
 ```
 
-`scripts/groove-lib.ts` es el único punto de contacto con el submodule. Importa
-`decode`/`encode` de su `codec.ts`, que sólo depende de otros tres ficheros sin
-dependencias externas — por eso funciona sin instalar nada dentro de
-`apps/groove`.
+`scripts/groove-lib.ts` is the only point of contact with the submodule. It
+imports `decode`/`encode` from its `codec.ts`, which depends on just three
+other files with no external dependencies — that is why it works without
+installing anything inside `apps/groove`.
 
-## Actualizar Groove
+## Updating Groove
 
 ```sh
 git -C apps/groove pull origin main
@@ -140,20 +144,24 @@ npm run check
 git add apps/groove exercises
 ```
 
-## Despliegue
+## Deployment
 
-Netlify, con `netlify.toml` en la raíz. El submodule se declara por HTTPS en
-`.gitmodules` porque es la única forma de que Netlify pueda clonarlo.
+Netlify, driven by `netlify.toml` at the root. The submodule is declared over
+HTTPS in `.gitmodules` because that is the only way Netlify can clone it.
 
-Groove se sirve en `/groove/`, así que el editor completo está disponible en
-producción. No hacen falta reglas de rewrite: Groove usa hash routing con base
-relativa, y Astro genera un `.html` real por ejercicio.
+Groove is served at `/groove/`, so the full editor is available in production.
+No rewrite rules are needed: Groove uses hash routing with a relative base,
+and Astro generates a real `.html` per exercise.
 
-## Licencia
+## A note on language
+
+This README is in English; the site UI and the CLI output are in Spanish.
+
+## License
 
 GPL-3.0-or-later.
 
-Este repositorio incluye y distribuye [Groove](https://github.com/fguisso/groove)
-de Fernando Guisso, licenciado bajo GPL-3.0-or-later. `apps/groove` es un
-submodule fijado a un commit concreto del repositorio original, que es su
-código fuente correspondiente.
+This repository includes and distributes
+[Groove](https://github.com/fguisso/groove) by Fernando Guisso, licensed under
+GPL-3.0-or-later. `apps/groove` is a submodule pinned to a specific commit of
+the original repository, which is its corresponding source.
