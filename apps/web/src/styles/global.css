@@ -1,0 +1,276 @@
+:root {
+  /* Adapta scrollbars, controles nativos y el canvas inicial al tema del SO. */
+  color-scheme: light dark;
+
+  --bg-light: oklch(98.5% 0.004 260);
+  --bg-dark: oklch(19% 0.012 260);
+  --surface-light: oklch(100% 0 0);
+  --surface-dark: oklch(23.5% 0.014 260);
+  --border-light: oklch(90% 0.008 260);
+  --border-dark: oklch(32% 0.016 260);
+  --text-light: oklch(24% 0.012 260);
+  --text-dark: oklch(94% 0.006 260);
+  --muted-light: oklch(52% 0.014 260);
+  --muted-dark: oklch(68% 0.014 260);
+  --accent-light: oklch(52% 0.19 28);
+  --accent-dark: oklch(76% 0.16 32);
+
+  --bg: light-dark(var(--bg-light), var(--bg-dark));
+  --surface: light-dark(var(--surface-light), var(--surface-dark));
+  --border: light-dark(var(--border-light), var(--border-dark));
+  --text: light-dark(var(--text-light), var(--text-dark));
+  --muted: light-dark(var(--muted-light), var(--muted-dark));
+  --accent: light-dark(var(--accent-light), var(--accent-dark));
+
+  --radius: 10px;
+  --measure: 68rem;
+
+  accent-color: var(--accent);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+:where(a, button, iframe):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.shell {
+  max-inline-size: var(--measure);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+  padding-block: clamp(1.5rem, 5vw, 3rem);
+}
+
+/* ── Cabecera ───────────────────────────────────────────── */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding-block-end: 1.25rem;
+  border-block-end: 1px solid var(--border);
+  margin-block-end: 2.5rem;
+}
+
+/* `.brand` es <h1> en el índice y <p> en las fichas, para que cada página
+   tenga un único <h1>. El aspecto es el mismo en ambos casos. */
+.masthead .brand {
+  margin: 0;
+  font-size: clamp(1.4rem, 1rem + 2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.masthead .brand a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.masthead .spacer {
+  margin-inline-start: auto;
+}
+
+.masthead nav {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ── Secciones por categoría ────────────────────────────── */
+
+.category + .category {
+  margin-block-start: 3rem;
+}
+
+.category > h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.category > .blurb {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.category > hr {
+  border: 0;
+  border-block-start: 1px solid var(--border);
+  margin-block: 0.75rem 1.25rem;
+}
+
+/* ── Rejilla de tarjetas ────────────────────────────────── */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: grid;
+  /* Fallback en la misma cascada; se ignora donde subgrid está soportado. */
+  grid-template-rows: auto 1fr auto;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  gap: 0.4rem;
+
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.card .meta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tags li {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* ── Ficha de ejercicio ─────────────────────────────────── */
+
+.crumbs {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-block-end: 0.75rem;
+}
+
+.exercise-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 2.1rem);
+  letter-spacing: -0.02em;
+}
+
+.exercise-header .meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.exercise-header .tags {
+  margin-block-start: 0.75rem;
+}
+
+.notes {
+  margin-block: 1.5rem 0;
+  padding: 0.85rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+}
+
+.embed-frame {
+  margin-block-start: 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.embed-frame iframe {
+  display: block;
+  inline-size: 100%;
+  border: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block-start: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.actions a {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.actions a:hover {
+  border-color: var(--accent);
+}
+
+.site-footer {
+  margin-block-start: 4rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+}

@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content'
+import categories from '@root/categories.json'
+import ExerciseCard from '../components/ExerciseCard.astro'
+import Base from '../layouts/Base.astro'
+
+const all = await getCollection('exercises')
+
+// Orden dentro de cada categoría: alfabético por título, con locale español
+// para que los acentos no acaben al final.
+const sections = categories.map((category) => ({
+  ...category,
+  exercises: all
+    .filter((e) => e.data.category === category.id)
+    .sort((a, b) => a.data.title.localeCompare(b.data.title, 'es', { numeric: true })),
+}))
+
+const total = all.length
+---
+
+<Base
+  title="drums.cscazorla.es"
+  description="Biblioteca personal de ejercicios de batería: coordinación, rudimentos, grooves y fills."
+>
+  {
+    total === 0 && (
+      <p class="empty">
+        Todavía no hay ejercicios. Créalos con <code>npm run dev:groove</code> y añádelos con{' '}
+        <code>npm run exercise:add</code>.
+      </p>
+    )
+  }
+
+  {
+    sections.map((section) => (
+      <section class="category">
+        <h2>{section.label}</h2>
+        {section.blurb && <p class="blurb">{section.blurb}</p>}
+        <hr />
+        {section.exercises.length === 0 ? (
+          <p class="empty">Sin ejercicios todavía.</p>
+        ) : (
+          <div class="card-grid">
+            {section.exercises.map((exercise) => (
+              <ExerciseCard exercise={exercise} />
+            ))}
+          </div>
+        )}
+      </section>
+    ))
+  }
+</Base>

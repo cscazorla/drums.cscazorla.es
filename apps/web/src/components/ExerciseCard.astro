@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { grooveMeta, type GrooveMeta } from '../lib/format'
+
+interface Props {
+  exercise: CollectionEntry<'exercises'>
+}
+
+const { exercise } = Astro.props
+const { title, tags, groove } = exercise.data
+---
+
+<a class="card" href={`/e/${exercise.id}/`}>
+  <h3>{title}</h3>
+  <p class="meta">{grooveMeta(groove as unknown as GrooveMeta)}</p>
+  {
+    tags.length > 0 && (
+      <ul class="tags">
+        {tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+</a>

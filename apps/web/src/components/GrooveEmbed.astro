@@ -1,0 +1,66 @@
+---
+interface Props {
+  payload: string
+  title: string
+}
+
+const { payload, title } = Astro.props
+
+// Sin `?ro=1` a propósito: ese flag oculta LOOP, SWING, SPEED trainer, METRO y
+// COUNT-IN, que son justo las herramientas de práctica. (No desactiva el play,
+// pese a lo que sugiere el README de upstream.)
+const src = `/groove/#/embed/g/${payload}`
+---
+
+<div class="embed-frame">
+  <!-- Sin loading="lazy": es el contenido principal de la página y cargarlo de
+       inmediato hace determinista el momento del evento `load`. -->
+  <iframe data-groove src={src} title={`Partitura: ${title}`} height="400" allow="autoplay"
+  ></iframe>
+</div>
+
+<script>
+  // El embed de Groove emite `groove:resize`, pero en la práctica manda un
+  // único mensaje con height:0 y no vuelve a emitir. Como lo servimos desde
+  // nuestro propio origen (/groove/), medimos el documento interno nosotros.
+  const frames = document.querySelectorAll<HTMLIFrameElement>('iframe[data-groove]')
+
+  const fit = (frame: HTMLIFrameElement) => {
+    const doc = frame.contentDocument
+    // about:blank es el documento inicial del iframe, todavía no el embed.
+    if (!doc?.body || doc.location.href === 'about:blank') return
+    const height = Math.ceil(doc.body.scrollHeight)
+    if (height > 0) frame.style.height = `${height}px`
+  }
+
+  for (const frame of frames) {
+    const attach = () => {
+      const doc = frame.contentDocument
+      if (!doc?.body || doc.location.href === 'about:blank') return
+
+      fit(frame)
+
+      // VexFlow pinta la partitura de forma asíncrona después del load, y en
+      // carga en frío el bundle tarda. Reintentar unas cuantas veces cubre esa
+      // carrera sin recurrir a un polling permanente.
+      for (const delay of [0, 100, 300, 800, 2000]) {
+        setTimeout(() => fit(frame), delay)
+      }
+
+      // Y a partir de ahí, reaccionar a cualquier reflow (cambio de ancho de
+      // ventana, rotación del móvil). Observamos los dos elementos porque el
+      // alto puede crecer en `html` sin que cambie el borde de `body`.
+      const observer = new ResizeObserver(() => fit(frame))
+      observer.observe(doc.body)
+      observer.observe(doc.documentElement)
+    }
+
+    frame.addEventListener('load', attach)
+    // Si el iframe ya había cargado cuando corrió este script.
+    attach()
+  }
+
+  window.addEventListener('resize', () => {
+    for (const frame of frames) fit(frame)
+  })
+</script>

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "coordination",
+    "label": "Coordination",
+    "blurb": "Independencia de extremidades y patrones lineales."
+  },
+  {
+    "id": "rudiments",
+    "label": "Rudiments",
+    "blurb": "Rudimentos y sus variaciones aplicadas a la batería."
+  },
+  {
+    "id": "grooves",
+    "label": "Grooves",
+    "blurb": "Ritmos completos por estilo."
+  },
+  {
+    "id": "fills",
+    "label": "Fills",
+    "blurb": "Redobles y transiciones."
+  }
+]

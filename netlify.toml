@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Groove usa hash routing y base relativa, así que /groove/ se sirve como
+# ficheros estáticos sin necesidad de rewrites. Astro genera un .html por
+# ejercicio, así que tampoco hacen falta redirects para /e/<cat>/<slug>/.
+
+# Los assets con hash en el nombre son inmutables.
+[[headers]]
+  for = "/groove/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

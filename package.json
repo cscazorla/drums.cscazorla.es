@@ -1,0 +1,25 @@
+{
+  "name": "drums-cscazorla-es",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/web",
+    "dev:groove": "npm --prefix apps/groove run dev",
+    "build": "npm run build:groove && npm run check && npm run build:web",
+    "build:groove": "npm --prefix apps/groove ci && npm --prefix apps/groove run build && rm -rf apps/web/public/groove && cp -R apps/groove/dist apps/web/public/groove",
+    "build:web": "npm run build -w apps/web",
+    "preview": "npm run preview -w apps/web",
+    "check": "tsx scripts/check-exercises.ts",
+    "exercise:add": "tsx scripts/add-exercise.ts",
+    "exercise:reencode": "tsx scripts/reencode.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

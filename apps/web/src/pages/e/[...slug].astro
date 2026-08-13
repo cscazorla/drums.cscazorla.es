@@ -1,0 +1,52 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { getCollection } from 'astro:content'
+import categories from '@root/categories.json'
+import GrooveEmbed from '../../components/GrooveEmbed.astro'
+import Base from '../../layouts/Base.astro'
+import { grooveMeta, type GrooveMeta } from '../../lib/format'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const all = await getCollection('exercises')
+  // El id del loader glob es "<categoria>/<slug>", que usamos tal cual como ruta.
+  return all.map((exercise) => ({ params: { slug: exercise.id }, props: { exercise } }))
+}
+
+const { exercise } = Astro.props
+const { title, tags, notes, difficulty, payload, groove } = exercise.data
+
+const category = categories.find((c) => c.id === exercise.data.category)
+const meta = grooveMeta(groove as unknown as GrooveMeta)
+---
+
+<Base title={title} description={notes ?? `${category?.label ?? ''} — ${meta}`}>
+  <p class="crumbs">
+    <a href="/">Inicio</a> / {category?.label ?? exercise.data.category}
+  </p>
+
+  <header class="exercise-header">
+    <h1>{title}</h1>
+    <p class="meta">
+      {meta}
+      {difficulty && ` · dificultad ${'●'.repeat(difficulty)}${'○'.repeat(5 - difficulty)}`}
+    </p>
+    {
+      tags.length > 0 && (
+        <ul class="tags">
+          {tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+  </header>
+
+  {notes && <p class="notes">{notes}</p>}
+
+  <GrooveEmbed payload={payload} title={title} />
+
+  <div class="actions">
+    <a href={`/groove/#/g/${payload}`}>Abrir en el editor</a>
+    <a href="/">Volver al índice</a>
+  </div>
+</Base>

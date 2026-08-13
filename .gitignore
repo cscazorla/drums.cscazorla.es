@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+apps/web/public/groove/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+*.log
+.netlify/

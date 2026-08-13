@@ -1,0 +1,3 @@
+[submodule "apps/groove"]
+	path = apps/groove
+	url = https://github.com/fguisso/groove.git
