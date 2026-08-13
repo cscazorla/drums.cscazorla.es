@@ -73,6 +73,23 @@ npm run check        # validate every exercise
 `npm run build` compiles Groove, validates the exercises and generates the
 site. A corrupt exercise breaks the build instead of reaching production.
 
+### From another device on your network
+
+```sh
+npm run dev:host            # the site, reachable at http://<your-ip>:4321/
+npm run dev:groove:host     # the editor, same idea
+```
+
+Both print a `Network:` line with the address to open on the other device.
+Handy for practising from a tablet on the kit, or checking the layout on a
+phone.
+
+Extra flags reach Astro through the `--` separator, so this works too:
+
+```sh
+npm run dev -- --host --port 4444
+```
+
 ## Exercise format
 
 ```jsonc
