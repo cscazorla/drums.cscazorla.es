@@ -87,16 +87,6 @@ a {
   text-decoration: none;
 }
 
-.masthead .spacer {
-  margin-inline-start: auto;
-}
-
-.masthead nav {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.9rem;
-}
-
 /* ── Secciones por categoría ────────────────────────────── */
 
 .category + .category {
