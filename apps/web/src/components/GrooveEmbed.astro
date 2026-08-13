@@ -33,11 +33,33 @@ const src = `/groove/#/embed/g/${payload}`
     if (height > 0) frame.style.height = `${height}px`
   }
 
+  /**
+   * Bug de upstream: en móvil el embed se queda sin botón de play.
+   *
+   * Groove oculta el play de `Transport.vue` por debajo de 768px
+   * (`hidden md:inline-flex`) porque en el editor lo sustituye el botón de
+   * zona de pulgar de `StateBar.vue` (`md:hidden`). Pero `EmbedView.vue`
+   * renderiza `Transport` y NO `StateBar`, así que en pantallas estrechas
+   * desaparecen los dos y sólo queda Loop.
+   *
+   * Lo compensamos desde aquí en vez de parchear el submodule. Si upstream
+   * lo arregla, este override deja de hacer falta y se puede borrar.
+   */
+  const restoreMobilePlay = (doc: Document) => {
+    if (doc.getElementById('drums-mobile-play-fix')) return
+    const style = doc.createElement('style')
+    style.id = 'drums-mobile-play-fix'
+    style.textContent =
+      '@media (max-width: 767.98px) { .transport-play { display: inline-flex !important; } }'
+    doc.head.appendChild(style)
+  }
+
   for (const frame of frames) {
     const attach = () => {
       const doc = frame.contentDocument
       if (!doc?.body || doc.location.href === 'about:blank') return
 
+      restoreMobilePlay(doc)
       fit(frame)
 
       // VexFlow pinta la partitura de forma asíncrona después del load, y en
