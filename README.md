@@ -240,7 +240,7 @@ measures 1.08:1 on a dark tab strip).
 
 ```
 apps/
-  groove/        submodule → fguisso/groove. Never edited.
+  groove/        submodule → cscazorla/groove, a GPL-3.0 fork of fguisso/groove
   web/           Astro site
 exercises/       the exercises, one folder per category
 scripts/         authoring and validation CLI
@@ -252,18 +252,59 @@ imports `decode`/`encode` from its `codec.ts`, which depends on just three
 other files with no external dependencies — that is why it works without
 installing anything inside `apps/groove`.
 
-## Updating Groove
+## Working on Groove
+
+`apps/groove` points at **[cscazorla/groove](https://github.com/cscazorla/groove)**,
+a fork of [fguisso/groove](https://github.com/fguisso/groove), so the editor
+can be changed here. It has two remotes:
+
+| remote | |
+|---|---|
+| `origin` | the fork — where your work lives |
+| `upstream` | `fguisso/groove` — where fixes and features come from |
+
+### Changing the editor
 
 ```sh
-git -C apps/groove pull origin main
-npm run build:groove
-npm run check                    # every payload still decodes?
-git add apps/groove
+cd apps/groove
+git checkout -b my-change
+# …edit, then:
+npm run typecheck && npm run lint && npm test    # Groove's own gates
+git commit -am '…' && git checkout main && git merge my-change
+git push origin main
+
+cd ../..
+npm run build:groove          # rebuild the copy the site serves
+git add apps/groove           # pin the new commit
 ```
 
-If `npm run check` fails after an update, the codec changed. Roll the
-submodule back (`git -C apps/groove checkout <previous-commit>`) rather than
-commit the update — there is no way to regenerate the payloads.
+> **Push the fork first, and commit `.gitmodules` alongside the new pin.**
+> A submodule records a commit id, not the code. If the pinned commit only
+> exists on your laptop, or `.gitmodules` still names the old repo, Netlify's
+> clone fails.
+
+### Pulling upstream changes
+
+```sh
+git -C apps/groove fetch upstream
+git -C apps/groove merge upstream/main
+npm run build:groove
+npm run check                 # every payload still decodes?
+```
+
+If `npm run check` fails after a merge, the codec changed. Back the merge out
+rather than pin it — there is no way to regenerate the payloads.
+
+### License obligations
+
+The fork is GPL-3.0-or-later, like the original. Two things follow, and the
+fork satisfies both by existing: it is the **corresponding source** for the
+bundle this site serves, and its git history records **what changed and when**
+(GPL-3 §5a). Keep it public, and keep the original copyright notices intact.
+
+Fernando's README puts it plainly: copyleft reaches those who *modify,
+redistribute, or bundle* the source — which is now us. Sending a fix back
+upstream is courtesy, not obligation.
 
 ## Deployment
 
@@ -283,6 +324,11 @@ This README is in English; the site UI and the CLI output are in Spanish.
 GPL-3.0-or-later.
 
 This repository includes and distributes
-[Groove](https://github.com/fguisso/groove) by Fernando Guisso, licensed under
-GPL-3.0-or-later. `apps/groove` is a submodule pinned to a specific commit of
-the original repository, which is its corresponding source.
+[Groove](https://github.com/fguisso/groove) by Fernando Guisso, copyright (C)
+2026, licensed under GPL-3.0-or-later.
+
+`apps/groove` is a submodule pinned to a commit of
+[cscazorla/groove](https://github.com/cscazorla/groove), a public fork of that
+project carrying local modifications. The fork is the corresponding source for
+the editor bundle served at `/groove/`, and its history records which files
+were changed and when.
