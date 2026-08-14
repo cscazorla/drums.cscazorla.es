@@ -1,52 +1,95 @@
 ---
 import { getCollection } from 'astro:content'
-import categories from '@root/categories.json'
-import ExerciseCard from '../components/ExerciseCard.astro'
+import tags from '@root/tags.json'
+import ExerciseSections from '../components/ExerciseSections.astro'
+import TagChip from '../components/TagChip.astro'
 import Base from '../layouts/Base.astro'
 
 const all = await getCollection('exercises')
 
-// Orden dentro de cada categoría: alfabético por título, con locale español
-// para que los acentos no acaben al final.
-const sections = categories.map((category) => ({
-  ...category,
-  exercises: all
-    .filter((e) => e.data.category === category.id)
-    .sort((a, b) => a.data.title.localeCompare(b.data.title, 'es', { numeric: true })),
-}))
-
-const total = all.length
+// Sólo tienen chip los tags con ejercicios, para no ofrecer un filtro que
+// dejaría el índice vacío.
+const usedTags = tags.filter((tag) => all.some((e) => e.data.tags.includes(tag.id)))
 ---
 
 <Base
   title="drums.cscazorla.es"
-  description="Biblioteca personal de ejercicios de batería: coordinación, rudimentos, grooves y fills."
+  description="Biblioteca personal de ejercicios de batería."
 >
   {
-    total === 0 && (
+    all.length === 0 ? (
       <p class="empty">
-        Todavía no hay ejercicios. Créalos con <code>npm run dev:groove</code> y añádelos con{' '}
+        Todavía no hay ejercicios. Créalos con <code>npm run dev</code> y añádelos con{' '}
         <code>npm run exercise:add</code>.
       </p>
+    ) : (
+      <>
+        {usedTags.length > 0 && (
+          <nav class="tag-filter" aria-label="Filtrar por tag">
+            {/* Son enlaces de verdad a la página del tag: sin JavaScript
+                navegan; con JavaScript el filtrado ocurre aquí mismo. */}
+            <a class="tag tag-all" href="/" data-tag="" aria-current="true">
+              Todos
+            </a>
+            {usedTags.map((tag) => (
+              <TagChip tag={tag.id} href={`/t/${tag.id}/`} />
+            ))}
+          </nav>
+        )}
+
+        <ExerciseSections exercises={all} showEmpty />
+      </>
     )
   }
-
-  {
-    sections.map((section) => (
-      <section class="category">
-        <h2>{section.label}</h2>
-        {section.blurb && <p class="blurb">{section.blurb}</p>}
-        <hr />
-        {section.exercises.length === 0 ? (
-          <p class="empty">Sin ejercicios todavía.</p>
-        ) : (
-          <div class="card-grid">
-            {section.exercises.map((exercise) => (
-              <ExerciseCard exercise={exercise} />
-            ))}
-          </div>
-        )}
-      </section>
-    ))
-  }
 </Base>
+
+<script>
+  const filterBar = document.querySelector<HTMLElement>('.tag-filter')
+
+  if (filterBar) {
+    const chips = [...filterBar.querySelectorAll<HTMLAnchorElement>('[data-tag]')]
+    const cards = [...document.querySelectorAll<HTMLElement>('.card[data-tags]')]
+    const sections = [...document.querySelectorAll<HTMLElement>('.category')]
+    const valid = new Set(chips.map((c) => c.dataset.tag).filter(Boolean))
+
+    const apply = (tag: string) => {
+      // Un ?tag= que no existe se ignora y se muestra todo, en vez de dejar
+      // el índice en blanco sin explicación.
+      const active = tag && valid.has(tag) ? tag : ''
+
+      for (const card of cards) {
+        const cardTags = (card.dataset.tags ?? '').split(' ').filter(Boolean)
+        card.hidden = active !== '' && !cardTags.includes(active)
+      }
+
+      // Una categoría sin tarjetas visibles se oculta entera, cabecera incluida.
+      for (const section of sections) {
+        const visible = section.querySelectorAll('.card:not([hidden])').length
+        section.hidden = active !== '' && visible === 0
+      }
+
+      for (const chip of chips) {
+        if ((chip.dataset.tag || '') === active) chip.setAttribute('aria-current', 'true')
+        else chip.removeAttribute('aria-current')
+      }
+    }
+
+    const fromUrl = () => new URLSearchParams(location.search).get('tag') ?? ''
+
+    for (const chip of chips) {
+      chip.addEventListener('click', (event) => {
+        // Respetar cmd/ctrl-clic y clic central: son "abrir en pestaña nueva".
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return
+        event.preventDefault()
+
+        const tag = chip.dataset.tag || ''
+        apply(tag)
+        // pushState y no replaceState: así el botón atrás deshace el filtro.
+        history.pushState({ tag }, '', tag ? `/?tag=${encodeURIComponent(tag)}` : '/')
+      })
+    }
+
+    window.addEventListener('popstate', () => apply(fromUrl()))
+    apply(fromUrl())
+  }
+</script>

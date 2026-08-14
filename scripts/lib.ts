@@ -11,6 +11,33 @@ export interface Category {
   blurb?: string
 }
 
+/**
+ * Paleta categórica cerrada. Los 8 tonos y su orden salen de una paleta ya
+ * validada para daltonismo y contraste; ver la tabla del README para el hex de
+ * cada uno en claro y oscuro.
+ *
+ * Con más de 8 tags hay que repetir tonos: es aceptable porque el chip siempre
+ * lleva su etiqueta escrita, así que el color acompaña pero no codifica.
+ */
+export const TAG_COLORS = [
+  'blue',
+  'orange',
+  'aqua',
+  'yellow',
+  'magenta',
+  'green',
+  'violet',
+  'red',
+] as const
+
+export type TagColor = (typeof TAG_COLORS)[number]
+
+export interface Tag {
+  id: string
+  label: string
+  color: TagColor
+}
+
 export interface Exercise {
   title: string
   category: string
@@ -24,6 +51,10 @@ export interface Exercise {
 
 export function readCategories(): Category[] {
   return JSON.parse(readFileSync(join(ROOT, 'categories.json'), 'utf8')) as Category[]
+}
+
+export function readTags(): Tag[] {
+  return JSON.parse(readFileSync(join(ROOT, 'tags.json'), 'utf8')) as Tag[]
 }
 
 /** Todos los .json de exercises/, como rutas absolutas, en orden estable. */

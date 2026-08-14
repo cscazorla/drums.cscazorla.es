@@ -17,6 +17,7 @@ import {
   describeGroove,
   extractPayload,
   readCategories,
+  readTags,
   rel,
   serializeExercise,
   slugify,
@@ -52,6 +53,26 @@ if (!categories.some((c) => c.id === values.category)) {
   )
 }
 
+// Vocabulario cerrado: un tag hay que declararlo en tags.json antes de usarlo.
+// Es lo que evita acabar con "paradiddle" y "paradiddles" como tags distintos.
+const declaredTags = readTags()
+const tags = [
+  ...new Set(
+    (values.tags ?? '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean),
+  ),
+]
+const unknownTags = tags.filter((t) => !declaredTags.some((d) => d.id === t))
+if (unknownTags.length > 0) {
+  fail(
+    `Tag${unknownTags.length > 1 ? 's' : ''} sin declarar: ${unknownTags.map((t) => `"${t}"`).join(', ')}.\n` +
+      `  Válidos: ${declaredTags.map((t) => t.id).join(', ')}\n` +
+      `  Para usar uno nuevo, decláralo antes en tags.json.`,
+  )
+}
+
 const payload = extractPayload(values.url)
 if (!payload) {
   fail(
@@ -81,10 +102,7 @@ if (!slug) fail(`El título "${values.title}" no produce un slug válido; usa --
 const exercise: Exercise = {
   title: values.title,
   category: values.category,
-  tags: (values.tags ?? '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean),
+  tags,
   notes: values.notes || undefined,
   difficulty,
   createdAt: new Date().toISOString().slice(0, 10),

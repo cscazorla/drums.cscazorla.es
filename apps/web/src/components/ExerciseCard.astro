@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content'
+import TagChip from './TagChip.astro'
 
 interface Props {
   exercise: CollectionEntry<'exercises'>
@@ -9,13 +10,18 @@ const { exercise } = Astro.props
 const { title, tags } = exercise.data
 ---
 
-<a class="card" href={`/e/${exercise.id}/`}>
+<a class="card" href={`/e/${exercise.id}/`} data-tags={tags.join(' ')}>
   <h3>{title}</h3>
   {
     tags.length > 0 && (
       <ul class="tags">
         {tags.map((tag) => (
-          <li>{tag}</li>
+          <li>
+            {/* Sin href: la tarjeta entera ya es un <a> y anidar anclas es
+                HTML inválido. Para navegar por tag están los chips del índice
+                y los de la ficha del ejercicio. */}
+            <TagChip tag={tag} />
+          </li>
         ))}
       </ul>
     )

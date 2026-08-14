@@ -134,6 +134,54 @@ labels and the order of the sections on the index page all at once. Adding a
 category means adding an entry there and creating the folder under
 `exercises/`.
 
+## Tags
+
+A closed vocabulary, declared in `tags.json`. File order is chip order.
+
+```json
+[
+  { "id": "linear", "label": "Linear", "color": "blue" },
+  { "id": "paradiddle", "label": "Paradiddle", "color": "aqua" }
+]
+```
+
+**Declare a tag before using it.** An undeclared tag is rejected by
+`exercise:add` and fails `npm run check` — that is what stops `paradiddle` and
+`paradiddles` becoming two different tags.
+
+Each tag gets a page at `/t/<id>/`, and the index shows a chip row that filters
+in place. The chips are ordinary links, so they work with JavaScript disabled.
+
+### Colours
+
+Pick one of these eight. They come from a palette validated for colour-blind
+separation and contrast against this site's own surfaces:
+
+| name | light | dark |
+|---|---|---|
+| `blue` | `#2a78d6` | `#3987e5` |
+| `orange` | `#eb6834` | `#d95926` |
+| `aqua` | `#1baf7a` | `#199e70` |
+| `yellow` | `#eda100` | `#c98500` |
+| `magenta` | `#e87ba4` | `#d55181` |
+| `green` | `#008300` | `#008300` |
+| `violet` | `#4a3aa7` | `#9085e9` |
+| `red` | `#e34948` | `#e66767` |
+
+An invalid colour fails `npm run check`, and the error lists these eight, so
+you do not have to come back here mid-flow.
+
+Past eight tags colours have to repeat. That is fine: a chip always carries its
+written label, so colour accompanies identity rather than encoding it. `check`
+warns about shared colours so it stays a decision rather than an accident. It
+also warns about a tag declared but used by nothing — that one generates no
+page.
+
+> The chip's **text is always normal ink, never the tag colour**. Three of the
+> light steps (aqua, yellow, magenta) fall below 3:1 on the light background, so
+> they are fine as a border and a 12% tint beside a readable label, but would be
+> unreadable as text. Keep it that way if you restyle chips.
+
 ## Layout
 
 ```

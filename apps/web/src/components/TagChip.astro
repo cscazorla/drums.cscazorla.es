@@ -1,0 +1,32 @@
+---
+import tags from '@root/tags.json'
+
+interface Props {
+  /** id del tag, tal y como aparece en el .json del ejercicio */
+  tag: string
+  /** Enlazar a la página del tag. Falso dentro de una tarjeta, que ya es un <a>. */
+  href?: string
+  current?: boolean
+  class?: string
+}
+
+const { tag, href, current, class: extraClass } = Astro.props
+
+// Si el tag no estuviera declarado, `npm run check` ya habría roto el build.
+// El fallback es sólo para que el dev server no explote mientras editas.
+const declared = tags.find((t) => t.id === tag)
+const label = declared?.label ?? tag
+const style = declared ? `--tag-color: var(--tag-${declared.color})` : undefined
+
+const Tag = href ? 'a' : 'span'
+---
+
+<Tag
+  class:list={['tag', extraClass]}
+  style={style}
+  href={href}
+  data-tag={tag}
+  aria-current={current ? 'true' : undefined}
+>
+  {label}
+</Tag>

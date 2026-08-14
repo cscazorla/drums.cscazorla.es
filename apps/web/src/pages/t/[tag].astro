@@ -1,0 +1,39 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { getCollection } from 'astro:content'
+import tags from '@root/tags.json'
+import ExerciseSections from '../../components/ExerciseSections.astro'
+import Base from '../../layouts/Base.astro'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const all = await getCollection('exercises')
+  // Sólo los tags que tienen ejercicios. Uno declarado y sin usar no genera
+  // página; `npm run check` ya avisa de él.
+  return tags
+    .map((tag) => ({ tag, exercises: all.filter((e) => e.data.tags.includes(tag.id)) }))
+    .filter(({ exercises }) => exercises.length > 0)
+    .map(({ tag, exercises }) => ({ params: { tag: tag.id }, props: { tag, exercises } }))
+}
+
+const { tag, exercises } = Astro.props
+const count = exercises.length
+---
+
+<Base title={tag.label} description={`Ejercicios etiquetados como ${tag.label}.`}>
+  <p class="crumbs">
+    <a href="/">Inicio</a> / {tag.label}
+  </p>
+
+  <header class="exercise-header">
+    <h1>{tag.label}</h1>
+    <p class="meta">{count === 1 ? '1 ejercicio' : `${count} ejercicios`}</p>
+  </header>
+
+  <div class="tag-page-body">
+    <ExerciseSections exercises={exercises} />
+  </div>
+
+  <div class="actions">
+    <a href="/">Volver al índice</a>
+  </div>
+</Base>

@@ -1,0 +1,6 @@
+[
+  { "id": "linear", "label": "Linear", "color": "blue" },
+  { "id": "independence", "label": "Independence", "color": "orange" },
+  { "id": "paradiddle", "label": "Paradiddle", "color": "aqua" },
+  { "id": "accents", "label": "Accents", "color": "violet" }
+]

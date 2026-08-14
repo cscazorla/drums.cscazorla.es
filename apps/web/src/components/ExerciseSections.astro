@@ -1,0 +1,43 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import categories from '@root/categories.json'
+import ExerciseCard from './ExerciseCard.astro'
+
+interface Props {
+  exercises: CollectionEntry<'exercises'>[]
+  /** Mostrar las categorías sin ejercicios con un texto de vacío. */
+  showEmpty?: boolean
+}
+
+const { exercises, showEmpty = false } = Astro.props
+
+// Orden de secciones = orden de categories.json. Dentro, alfabético por título
+// con locale español para que los acentos no acaben al final.
+const sections = categories
+  .map((category) => ({
+    ...category,
+    exercises: exercises
+      .filter((e) => e.data.category === category.id)
+      .sort((a, b) => a.data.title.localeCompare(b.data.title, 'es', { numeric: true })),
+  }))
+  .filter((s) => showEmpty || s.exercises.length > 0)
+---
+
+{
+  sections.map((section) => (
+    <section class="category" data-category={section.id}>
+      <h2>{section.label}</h2>
+      {section.blurb && <p class="blurb">{section.blurb}</p>}
+      <hr />
+      {section.exercises.length === 0 ? (
+        <p class="empty">Sin ejercicios todavía.</p>
+      ) : (
+        <div class="card-grid">
+          {section.exercises.map((exercise) => (
+            <ExerciseCard exercise={exercise} />
+          ))}
+        </div>
+      )}
+    </section>
+  ))
+}
