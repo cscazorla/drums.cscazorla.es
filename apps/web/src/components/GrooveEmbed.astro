@@ -45,6 +45,21 @@ const src = `/groove/#/embed/g/${payload}`
    * Lo compensamos desde aquí en vez de parchear el submodule. Si upstream
    * lo arregla, este override deja de hacer falta y se puede borrar.
    */
+  /**
+   * Bug de upstream: en móvil el embed se queda sin botón de play.
+   *
+   * Groove oculta el play de `Transport.vue` por debajo de 768px
+   * (`hidden md:inline-flex`) porque en el editor lo sustituye el botón de
+   * zona de pulgar de `StateBar.vue` (`md:hidden`). Pero `EmbedView.vue`
+   * renderiza `Transport` y NO `StateBar`, así que en pantallas estrechas
+   * desaparecen los dos y sólo queda Loop.
+   *
+   * Lo compensamos desde aquí en vez de parchear el submodule. Si upstream
+   * lo arregla, este override deja de hacer falta y se puede borrar.
+   *
+   * (Lo de un compás por fila NO se hace aquí: sale del ancho del embed, que
+   * `.embed-frame` capa en global.css.)
+   */
   const restoreMobilePlay = (doc: Document) => {
     if (doc.getElementById('drums-mobile-play-fix')) return
     const style = doc.createElement('style')
@@ -52,6 +67,17 @@ const src = `/groove/#/embed/g/${payload}`
     style.textContent =
       '@media (max-width: 767.98px) { .transport-play { display: inline-flex !important; } }'
     doc.head.appendChild(style)
+  }
+
+  /**
+   * Redimensionar el iframe desde fuera no dispara el redibujado de la
+   * partitura, así que se quedaría con el ancho anterior y el navegador la
+   * escalaría (se ve diminuta al estrechar). El `redraw` de Groove sí escucha
+   * `resize` en su ventana, así que se lo lanzamos nosotros.
+   */
+  const redrawScore = (frame: HTMLIFrameElement) => {
+    const win = frame.contentWindow
+    if (win) win.dispatchEvent(new win.Event('resize'))
   }
 
   for (const frame of frames) {
@@ -82,7 +108,12 @@ const src = `/groove/#/embed/g/${payload}`
     attach()
   }
 
+  // Al cambiar el ancho de la ventana el iframe cambia de tamaño, así que la
+  // partitura tiene que rehacerse antes de volver a medir la altura.
   window.addEventListener('resize', () => {
-    for (const frame of frames) fit(frame)
+    for (const frame of frames) {
+      redrawScore(frame)
+      fit(frame)
+    }
   })
 </script>

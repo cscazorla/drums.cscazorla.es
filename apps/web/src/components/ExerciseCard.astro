@@ -7,11 +7,12 @@ interface Props {
 }
 
 const { exercise } = Astro.props
-const { title, tags } = exercise.data
+const { title, tags, notes } = exercise.data
 ---
 
 <a class="card" href={`/e/${exercise.id}/`} data-tags={tags.join(' ')}>
   <h3>{title}</h3>
+  {notes && <p class="card-notes">{notes}</p>}
   {
     tags.length > 0 && (
       <ul class="tags">

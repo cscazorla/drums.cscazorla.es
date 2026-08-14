@@ -201,6 +201,26 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+/* Fila del medio del subgrid (la flexible). Recortado a 3 líneas para que una
+   nota larga no descuadre la tarjeta; la ficha muestra el texto completo. */
+.card-notes {
+  grid-row: 2;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Explícito en la última fila: así los tags siguen alineados entre tarjetas
+   aunque un ejercicio no tenga notes y deje ese hueco vacío. */
+.card .tags {
+  grid-row: 3;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -323,7 +343,17 @@ a.tag:hover {
   white-space: pre-wrap;
 }
 
+/* Un compás por fila.
+   Groove reparte los compases con `perRow = floor(disponible / anchoMínimo)`,
+   así que el mismo ancho decide cuántos caben Y cuánto mide cada uno: pedir un
+   compás por fila obliga a mantener el disponible por debajo de ~520px. En vez
+   de encoger sólo la partitura dentro de un iframe ancho — que dejaba el
+   recuadro oscuro flotando —, capamos el embed entero y lo centramos, así
+   partitura, recuadro y barra de transporte comparten ancho.
+   En móvil el tope es inerte, la pantalla ya es más estrecha. */
 .embed-frame {
+  max-inline-size: 560px;
+  margin-inline: auto;
   margin-block-start: 1.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);

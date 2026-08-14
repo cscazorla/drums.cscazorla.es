@@ -8,7 +8,7 @@
  * Si upstream mueve o renombra ficheros, este es el único fichero a tocar.
  */
 export { decode, encode } from '../apps/groove/src/lib/codec'
-export { emptyGroove, stepCount } from '../apps/groove/src/lib/model'
+export { emptyGroove, resizeArrays, stepCount } from '../apps/groove/src/lib/model'
 export type { Division, Groove, Sticking } from '../apps/groove/src/lib/model'
 export { VOICE_IDS } from '../apps/groove/src/lib/voices'
 export type { VoiceId } from '../apps/groove/src/lib/voices'

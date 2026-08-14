@@ -2,7 +2,7 @@
  * Crea un ejercicio a partir de una URL del editor de Groove.
  *
  *   npm run exercise:add -- \
- *     --url 'http://localhost:5173/#/g/BFoAAEQBJAcggggggggAQABAQABAAA' \
+ *     --payload BFoAAEQBJAcggggggggAQABAQABAAA \
  *     --category coordination \
  *     --title 'Linear exercise #1' \
  *     --tags linear,independence \
@@ -15,22 +15,19 @@ import { decode, encode } from './groove-lib.ts'
 import {
   EXERCISES_DIR,
   describeGroove,
-  extractPayload,
+  fail,
   readCategories,
   readTags,
   rel,
+  resolvePayload,
   serializeExercise,
   slugify,
   type Exercise,
 } from './lib.ts'
 
-function fail(message: string): never {
-  console.error(`\x1b[31m✗\x1b[0m ${message}`)
-  process.exit(1)
-}
-
 const { values } = parseArgs({
   options: {
+    payload: { type: 'string' },
     url: { type: 'string' },
     category: { type: 'string' },
     title: { type: 'string' },
@@ -42,7 +39,6 @@ const { values } = parseArgs({
   },
 })
 
-if (!values.url) fail('Falta --url (la URL del editor, o el payload pelado)')
 if (!values.category) fail('Falta --category')
 if (!values.title) fail('Falta --title')
 
@@ -73,12 +69,7 @@ if (unknownTags.length > 0) {
   )
 }
 
-const payload = extractPayload(values.url)
-if (!payload) {
-  fail(
-    `No he sabido extraer el payload de:\n  ${values.url}\n  Esperaba algo tipo http://localhost:5173/#/g/<payload>`,
-  )
-}
+const payload = resolvePayload(values)
 
 // Decodificamos sólo para validar y para poder resumir el ejercicio por
 // pantalla; el groove no se guarda, el payload es la única fuente de verdad.

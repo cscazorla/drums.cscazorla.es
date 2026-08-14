@@ -78,6 +78,37 @@ export function rel(absolute: string): string {
   return absolute.slice(ROOT.length + 1)
 }
 
+/** Aborta con un mensaje en rojo. Compartido por todos los CLI. */
+export function fail(message: string): never {
+  console.error(`\x1b[31m✗\x1b[0m ${message}`)
+  process.exit(1)
+}
+
+/** Límite del editor, fijado en MeasureTabs.vue y no exportado por Groove. */
+export const MAX_MEASURES = 8
+
+/**
+ * Resuelve el payload a partir de `--payload` o `--url`, indistintamente.
+ *
+ * Los dos flags aceptan las dos formas: pegar la URL entera del navegador es lo
+ * cómodo justo después de editar, y el payload pelado lo es cuando ya lo tienes
+ * (por ejemplo copiado de un .json de `exercises/`).
+ */
+export function resolvePayload(values: { payload?: string; url?: string }): string {
+  const raw = values.payload ?? values.url
+  if (!raw) {
+    fail('Falta --payload (el payload del groove, o la URL entera del editor con --url)')
+  }
+  const payload = extractPayload(raw)
+  if (!payload) {
+    fail(
+      `No he sabido extraer el payload de:\n  ${raw}\n` +
+        `  Espero un payload suelto (BFAA…) o una URL con #/g/<payload>`,
+    )
+  }
+  return payload
+}
+
 export function slugify(input: string): string {
   return input
     .normalize('NFD')

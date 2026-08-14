@@ -36,11 +36,11 @@ If you already cloned without submodules: `git submodule update --init`.
 2. Build the groove. The URL updates by itself: the whole exercise is encoded
    in it.
 
-3. Copy the URL from the address bar and save it:
+3. Take the payload — the part of the URL after `#/g/` — and save it:
 
    ```sh
    npm run exercise:add -- \
-     --url 'http://localhost:4321/groove/#/g/BFoAAEQBJAcggggggggAQABAQABAAA' \
+     --payload BFoAAEQBJAcggggggggAQABAQABAAA \
      --category coordination \
      --title 'Linear exercise #1' \
      --tags linear,independence \
@@ -48,15 +48,20 @@ If you already cloned without submodules: `git submodule update --init`.
      --difficulty 3
    ```
 
-   Paste the URL as-is. `--url` only cares about the `#/g/<payload>` part, so
-   any of these work: either dev server, the deployed site, an
-   `#/embed/g/<payload>` link, or a bare payload with no URL around it.
-
    Writes `exercises/coordination/linear-exercise-1.json`.
+
+   If you would rather not trim the address, paste the whole thing: `--payload`
+   and `--url` both accept either form, and only the `#/g/<payload>` part is
+   read — so a dev-server URL, the deployed site or an `#/embed/g/<payload>`
+   link all work.
+
+   ```sh
+   npm run exercise:add -- --url 'http://localhost:4321/groove/#/g/BFoA…' …
+   ```
 
    | Flag | |
    |---|---|
-   | `--url` | required. Editor URL, or a bare payload |
+   | `--payload` / `--url` | required (either one). Bare payload or full editor URL |
    | `--category` | required. One of those in `categories.json` |
    | `--title` | required |
    | `--tags` | comma-separated |
@@ -70,6 +75,39 @@ If you already cloned without submodules: `git submodule update --init`.
 
 4. It shows up on the index at [localhost:4321](http://localhost:4321/)
    straight away — the dev server picks up the new file, no restart needed.
+
+## Editing measures
+
+Groove's editor can only *add* an empty measure: there is no duplicate, no
+copy/paste and no delete. Since the codec is available here, those operations
+run on the payload instead — pass the payload in, paste the result back.
+
+```sh
+# duplicate measure 1 into a new measure at the end
+npm run measure:dup -- --payload BFAA… --from 1
+
+# copy measure 2 over measure 3, adding nothing
+npm run measure:dup -- --payload BFAA… --from 2 --to 3
+
+# delete measure 2; later measures shift down
+npm run measure:rm  -- --payload BFAA… --measure 2
+
+# --url takes the whole address, straight from the browser
+npm run measure:rm  -- --url 'http://localhost:4321/groove/#/g/BFAA…' --measure 2
+```
+
+Notes, sticking and the repeat count travel with the measure in both commands.
+Measure numbers start at 1, the editor's 8-measure ceiling is enforced, and the
+last remaining measure cannot be deleted.
+
+> **Try `Cmd/Ctrl+Z` first.** It undoes an accidental `+` and is not listed in
+> the editor's own shortcut panel, which only documents `Space`. It only works
+> until you reload, though — the history is in memory, which is when
+> `measure:rm` becomes the way out.
+>
+> And if you only want a measure to *play* several times, you need none of
+> this: the tab bar has a per-measure repeat counter. It plays N times and is
+> drawn once.
 
 ## Running the site
 
