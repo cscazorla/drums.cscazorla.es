@@ -182,6 +182,22 @@ page.
 > they are fine as a border and a 12% tint beside a readable label, but would be
 > unreadable as text. Keep it that way if you restyle chips.
 
+## Favicon
+
+`apps/web/public/favicon.drawio.svg` is a normal SVG that also carries its
+draw.io diagram in the root `content` attribute. Browsers ignore that
+attribute; the [draw.io VS Code extension](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio)
+opens the file directly. Edit, save, done — it is served as-is, no build step.
+
+It is drawn in a **single mid-tone red** (`#e34948`) on purpose. A browser tab
+strip is light or dark depending on the theme, and that red clears 3:1 on both
+(3.02 light, 4.07 dark), so the icon needs no `prefers-color-scheme` rule —
+which matters because draw.io would drop such a rule when saving.
+
+If you recolour it, keep to one colour that works on both tab strips. Going
+near-black or near-white makes the icon vanish on one of them (near-black
+measures 1.08:1 on a dark tab strip).
+
 ## Layout
 
 ```

@@ -25,7 +25,10 @@ const Brand = isHome ? 'h1' : 'p'
     <meta name="color-scheme" content="light dark" />
     <title>{fullTitle}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/* Editable con la extensión draw.io de VS Code: el diagrama va dentro del
+        atributo `content`, que el navegador ignora. Un color único a propósito,
+        para que draw.io pueda guardarlo sin perder nada — ver el README. */}
+    <link rel="icon" href="/favicon.drawio.svg" type="image/svg+xml" />
   </head>
   <body>
     <div class="shell">
