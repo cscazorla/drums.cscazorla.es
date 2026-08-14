@@ -8,6 +8,10 @@ const categoryIds = categories.map((c) => c.id) as [string, ...string[]]
  * Los ejercicios viven en `exercises/` en la raíz del monorepo, fuera de
  * apps/web. El id de cada entrada queda como "<categoria>/<slug>", que es
  * también su ruta en el sitio.
+ *
+ * El `payload` es opaco aquí a propósito: la web sólo lo pasa al iframe. Que
+ * decodifique a un groove válido lo comprueba `npm run check`, que corre antes
+ * que Astro en `npm run build`.
  */
 const exercises = defineCollection({
   loader: glob({ pattern: '**/*.json', base: '../../exercises' }),
@@ -19,16 +23,6 @@ const exercises = defineCollection({
     difficulty: z.number().int().min(1).max(5).optional(),
     createdAt: z.string().optional(),
     payload: z.string().min(1),
-    // Sólo validamos los campos que la web usa para pintar. `passthrough` evita
-    // duplicar aquí el modelo entero de Groove, que es de upstream.
-    groove: z
-      .object({
-        timeSig: z.tuple([z.number(), z.number()]),
-        division: z.number(),
-        measures: z.number(),
-        tempo: z.number(),
-      })
-      .passthrough(),
   }),
 })
 

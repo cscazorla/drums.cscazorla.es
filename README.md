@@ -103,39 +103,29 @@ npm run dev -- --host --port 4444
 
 ```jsonc
 {
-  "title": "Basic rock #1",
-  "category": "grooves",
-  "tags": ["rock", "beginner"],
-  "notes": "Hi-hat on eighths, snare on 2 and 4.",
-  "difficulty": 1,
+  "title": "Paradiddle #1",
+  "category": "practice-pad",
+  "tags": ["paradiddle"],
+  "notes": "RLRR LRLL en semicorcheas.",
+  "difficulty": 2,
   "createdAt": "2026-08-13",
-
-  "payload": "BFoAAEQBJAcggggggggAQABAQABAAA",   // derived
-
-  "groove": {                                     // source of truth
-    "timeSig": [4, 4], "division": 16, "measures": 1, "tempo": 90,
-    "voices": {
-      "hh": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-      "sn": [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-      "kk": [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-    }
-  }
+  "payload": "BFAAAEQBZAJVVVVVZZplmg"
 }
 ```
 
-**Both** are stored: `groove` is the source of truth (readable, and a
-`git diff` shows which note moved) and `payload` is what the editor consumes.
+`payload` is the whole exercise — tempo, time signature, every note and
+sticking — and it is the single source of truth. Everything else is just
+labels for the index page.
 
-Groove's README warns that the payload format is not a stable contract. So,
-after updating the submodule:
+`npm run check` verifies that every payload still decodes, and runs before
+Astro in `npm run build`, so a broken one fails the build rather than
+reaching production.
 
-```sh
-npm run exercise:reencode -- --dry-run   # preview what would change
-npm run exercise:reencode                # regenerate every payload
-```
-
-Because `groove` does not depend on the codec, exercises survive a format
-change upstream.
+> **Caveat.** Groove's README warns that the payload format is not a stable
+> contract. Since the payload is all that is stored, a breaking codec change
+> upstream would leave the exercises unreadable, with nothing to regenerate
+> them from. Check a few exercises after running `git -C apps/groove pull`,
+> and hold off on the update if they break.
 
 ## Categories
 
@@ -165,10 +155,13 @@ installing anything inside `apps/groove`.
 ```sh
 git -C apps/groove pull origin main
 npm run build:groove
-npm run exercise:reencode
-npm run check
-git add apps/groove exercises
+npm run check                    # every payload still decodes?
+git add apps/groove
 ```
+
+If `npm run check` fails after an update, the codec changed. Roll the
+submodule back (`git -C apps/groove checkout <previous-commit>`) rather than
+commit the update — there is no way to regenerate the payloads.
 
 ## Deployment
 

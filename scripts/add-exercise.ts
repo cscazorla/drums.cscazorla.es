@@ -59,6 +59,8 @@ if (!payload) {
   )
 }
 
+// Decodificamos sólo para validar y para poder resumir el ejercicio por
+// pantalla; el groove no se guarda, el payload es la única fuente de verdad.
 const groove = decode(payload)
 if (!groove) {
   fail(`El payload no decodifica a un groove válido:\n  ${payload}`)
@@ -87,7 +89,6 @@ const exercise: Exercise = {
   difficulty,
   createdAt: new Date().toISOString().slice(0, 10),
   payload: canonical,
-  groove,
 }
 
 const outFile = join(EXERCISES_DIR, values.category, `${slug}.json`)

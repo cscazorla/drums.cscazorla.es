@@ -17,8 +17,7 @@
     "build:web": "npm run build -w apps/web",
     "preview": "npm run preview -w apps/web --",
     "check": "tsx scripts/check-exercises.ts",
-    "exercise:add": "tsx scripts/add-exercise.ts",
-    "exercise:reencode": "tsx scripts/reencode.ts"
+    "exercise:add": "tsx scripts/add-exercise.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

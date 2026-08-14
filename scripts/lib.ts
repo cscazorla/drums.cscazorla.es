@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Groove } from './groove-lib.ts'
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const EXERCISES_DIR = join(ROOT, 'exercises')
@@ -19,8 +18,8 @@ export interface Exercise {
   notes?: string
   difficulty?: number
   createdAt?: string
+  /** El groove entero, codificado. Única fuente de verdad del ejercicio. */
   payload: string
-  groove: Groove
 }
 
 export function readCategories(): Category[] {
@@ -91,61 +90,6 @@ export function readExercise(file: string): Exercise {
   return JSON.parse(readFileSync(file, 'utf8')) as Exercise
 }
 
-const isPrimitive = (v: unknown): boolean =>
-  v === null || ['number', 'string', 'boolean'].includes(typeof v)
-
-const MAX_WIDTH = 96
-
-/**
- * Como JSON.stringify(v, null, 2), pero manteniendo los arrays de primitivos
- * en línea (envolviendo a ~96 columnas).
- *
- * Es lo que hace que un ejercicio sea legible en un diff: una voz se ve como
- * `"sn": [0, 0, 0, 0, 1, 0, ...]` en vez de como 16 líneas sueltas, así que en
- * un `git diff` se ve exactamente qué nota se ha movido.
- */
-function stringify(value: unknown, indent = ''): string {
-  if (Array.isArray(value)) {
-    if (value.length === 0) return '[]'
-    if (value.every(isPrimitive)) {
-      const items = value.map((v) => JSON.stringify(v))
-      const oneLine = `[${items.join(', ')}]`
-      if (indent.length + oneLine.length <= MAX_WIDTH) return oneLine
-
-      // La coma va pegada a cada elemento salvo el último, de modo que al
-      // repartir en líneas el resultado sigue siendo JSON válido.
-      const withCommas = items.map((item, i) => (i < items.length - 1 ? `${item},` : item))
-      const inner = indent + '  '
-      const lines: string[] = []
-      let current = ''
-      for (const item of withCommas) {
-        const candidate = current ? `${current} ${item}` : item
-        if (inner.length + candidate.length > MAX_WIDTH && current) {
-          lines.push(current)
-          current = item
-        } else {
-          current = candidate
-        }
-      }
-      if (current) lines.push(current)
-      return `[\n${lines.map((l) => inner + l).join('\n')}\n${indent}]`
-    }
-    const inner = indent + '  '
-    const parts = value.map((v) => inner + stringify(v, inner))
-    return `[\n${parts.join(',\n')}\n${indent}]`
-  }
-
-  if (value && typeof value === 'object') {
-    const entries = Object.entries(value).filter(([, v]) => v !== undefined)
-    if (entries.length === 0) return '{}'
-    const inner = indent + '  '
-    const parts = entries.map(([k, v]) => `${inner}${JSON.stringify(k)}: ${stringify(v, inner)}`)
-    return `{\n${parts.join(',\n')}\n${indent}}`
-  }
-
-  return JSON.stringify(value) ?? 'null'
-}
-
 /** Orden de claves fijo para que los diffs de git sean legibles. */
 export function serializeExercise(e: Exercise): string {
   const ordered = {
@@ -156,16 +100,8 @@ export function serializeExercise(e: Exercise): string {
     difficulty: e.difficulty,
     createdAt: e.createdAt,
     payload: e.payload,
-    groove: e.groove,
   }
-  const out = stringify(ordered)
-
-  // Red de seguridad: `stringify` es a medida, así que confirmamos que lo que
-  // vamos a escribir es JSON válido y equivalente antes de tocar el disco.
-  const reparsed = JSON.parse(out)
-  if (JSON.stringify(reparsed) !== JSON.stringify(JSON.parse(JSON.stringify(ordered)))) {
-    throw new Error('serializeExercise ha producido un JSON que no coincide con la entrada')
-  }
-
-  return out + '\n'
+  // `tags` es el único array y es corto, así que JSON.stringify basta para
+  // que el fichero se lea bien en un diff.
+  return JSON.stringify(ordered, null, 2) + '\n'
 }

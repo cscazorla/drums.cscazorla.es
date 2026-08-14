@@ -4,7 +4,6 @@ import { getCollection } from 'astro:content'
 import categories from '@root/categories.json'
 import GrooveEmbed from '../../components/GrooveEmbed.astro'
 import Base from '../../layouts/Base.astro'
-import { grooveMeta, type GrooveMeta } from '../../lib/format'
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const all = await getCollection('exercises')
@@ -13,23 +12,26 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 const { exercise } = Astro.props
-const { title, tags, notes, difficulty, payload, groove } = exercise.data
+const { title, tags, notes, difficulty, payload } = exercise.data
 
 const category = categories.find((c) => c.id === exercise.data.category)
-const meta = grooveMeta(groove as unknown as GrooveMeta)
 ---
 
-<Base title={title} description={notes ?? `${category?.label ?? ''} — ${meta}`}>
+<Base title={title} description={notes ?? category?.label}>
   <p class="crumbs">
     <a href="/">Inicio</a> / {category?.label ?? exercise.data.category}
   </p>
 
   <header class="exercise-header">
     <h1>{title}</h1>
-    <p class="meta">
-      {meta}
-      {difficulty && ` · dificultad ${'●'.repeat(difficulty)}${'○'.repeat(5 - difficulty)}`}
-    </p>
+    {
+      difficulty && (
+        <p class="meta">
+          dificultad {'●'.repeat(difficulty)}
+          {'○'.repeat(5 - difficulty)}
+        </p>
+      )
+    }
     {
       tags.length > 0 && (
         <ul class="tags">

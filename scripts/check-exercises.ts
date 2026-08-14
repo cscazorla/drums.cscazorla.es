@@ -5,11 +5,11 @@
  * Comprueba, por fichero:
  *   - la carpeta coincide con el campo `category`
  *   - la categoría existe en categories.json
- *   - el `payload` decodifica
- *   - `payload` y `groove` describen el MISMO groove (encode(groove) === payload)
+ *   - hay título
+ *   - el `payload` decodifica a un groove válido
  */
 import { basename, dirname } from 'node:path'
-import { decode, encode } from './groove-lib.ts'
+import { decode } from './groove-lib.ts'
 import { listExerciseFiles, readCategories, readExercise, rel } from './lib.ts'
 
 const categories = new Set(readCategories().map((c) => c.id))
@@ -28,9 +28,7 @@ for (const file of files) {
 
   const folder = basename(dirname(file))
   if (!categories.has(exercise.category)) {
-    problems.push(
-      `${where}: categoría "${exercise.category}" no existe en categories.json`,
-    )
+    problems.push(`${where}: categoría "${exercise.category}" no existe en categories.json`)
   } else if (exercise.category !== folder) {
     problems.push(
       `${where}: category es "${exercise.category}" pero está en la carpeta "${folder}"`,
@@ -41,27 +39,10 @@ for (const file of files) {
 
   if (!exercise.payload) {
     problems.push(`${where}: falta "payload"`)
-    continue
-  }
-  if (!exercise.groove) {
-    problems.push(`${where}: falta "groove"`)
-    continue
-  }
-
-  if (!decode(exercise.payload)) {
-    problems.push(`${where}: el "payload" no decodifica`)
-    continue
-  }
-
-  // El invariante que de verdad importa: los dos campos no se han desincronizado.
-  const expected = encode(exercise.groove)
-  if (expected !== exercise.payload) {
-    problems.push(
-      `${where}: "payload" y "groove" no coinciden.\n` +
-        `      payload:        ${exercise.payload}\n` +
-        `      encode(groove): ${expected}\n` +
-        `      Arréglalo con: npm run exercise:reencode`,
-    )
+  } else if (!decode(exercise.payload)) {
+    // El payload es la única fuente de verdad, así que si no decodifica el
+    // ejercicio es irrecuperable: mejor enterarse aquí que en producción.
+    problems.push(`${where}: el "payload" no decodifica a un groove válido`)
   }
 }
 

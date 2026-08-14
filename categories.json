@@ -1,22 +1,12 @@
 [
   {
-    "id": "coordination",
-    "label": "Coordination",
-    "blurb": "Independencia de extremidades y patrones lineales."
+    "id": "practice-pad",
+    "label": "Practice Pad",
+    "blurb": "Ejercicios para practicar en el pad."
   },
   {
-    "id": "rudiments",
-    "label": "Rudiments",
-    "blurb": "Rudimentos y sus variaciones aplicadas a la batería."
-  },
-  {
-    "id": "grooves",
-    "label": "Grooves",
-    "blurb": "Ritmos completos por estilo."
-  },
-  {
-    "id": "fills",
-    "label": "Fills",
-    "blurb": "Redobles y transiciones."
+    "id": "drum-kit",
+    "label": "Drum Kit",
+    "blurb": "Ejercicios para practicar en la batería."
   }
 ]
