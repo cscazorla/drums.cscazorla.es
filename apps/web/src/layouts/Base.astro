@@ -33,7 +33,16 @@ const Brand = isHome ? 'h1' : 'p'
   <body>
     <div class="shell">
       <header class="masthead">
-        <Brand class="brand"><a href="/">drums.cscazorla.es</a></Brand>
+        <Brand class="brand">
+          <a href="/">
+            {/* Mismo fichero que el favicon: al editarlo en draw.io se
+                actualizan el icono de pestaña y este logo a la vez.
+                alt="" porque es decorativo — el texto de al lado, dentro del
+                mismo enlace, ya nombra el sitio. */}
+            <img src="/favicon.drawio.svg" alt="" width="320" height="320" />
+            drums.cscazorla.es
+          </a>
+        </Brand>
       </header>
 
       <main>

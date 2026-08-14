@@ -107,8 +107,19 @@ a {
 }
 
 .masthead .brand a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: inherit;
   text-decoration: none;
+}
+
+/* En em, para que el logo escale con el título. El dibujo deja ~12% de aire
+   dentro de su viewBox, así que 1.4em se ve como ~1.2em de tinta. */
+.masthead .brand img {
+  inline-size: 1.4em;
+  block-size: 1.4em;
+  flex-shrink: 0;
 }
 
 /* ── Secciones por categoría ────────────────────────────── */
