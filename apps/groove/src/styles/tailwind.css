@@ -1,0 +1,557 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light: warm studio paper */
+    --background: 40 20% 97%;
+    --foreground: 220 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+    --primary: 174 65% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 25% 10%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 40%;
+    --accent: 174 65% 38%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --warn: 35 90% 45%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 174 65% 38%;
+    --radius: 0.5rem;
+
+    --beat-stripe: 220 15% 96%;
+    --grid-line: 220 15% 90%;
+    --led-shadow: 174 65% 38%;
+  }
+
+  /* Dark vars apply in two cases:
+     1. `.dark` on <html> — explicit (editor default, or embed with ?theme=dark).
+     2. Embed without an explicit override AND OS prefers dark — pure CSS, no JS.
+     Keep both selector blocks in sync. */
+  .dark {
+    /* Dark: deep charcoal w/ electric teal accent (Audacity 4 / Bitwig vibe) */
+    --background: 220 15% 7%;
+    --foreground: 220 15% 92%;
+    --card: 220 16% 10%;
+    --card-foreground: 220 15% 92%;
+    --popover: 220 16% 10%;
+    --popover-foreground: 220 15% 92%;
+    --primary: 174 72% 56%;
+    --primary-foreground: 220 25% 8%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 220 15% 92%;
+    --muted: 220 15% 13%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 174 72% 56%;
+    --accent-foreground: 220 25% 8%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --warn: 38 92% 58%;
+    --border: 220 15% 18%;
+    --input: 220 15% 15%;
+    --ring: 174 72% 56%;
+
+    --beat-stripe: 220 15% 12%;
+    --grid-line: 220 15% 20%;
+    --led-shadow: 174 72% 56%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html.is-embed:not(.theme-light):not(.dark) {
+      --background: 220 15% 7%;
+      --foreground: 220 15% 92%;
+      --card: 220 16% 10%;
+      --card-foreground: 220 15% 92%;
+      --popover: 220 16% 10%;
+      --popover-foreground: 220 15% 92%;
+      --primary: 174 72% 56%;
+      --primary-foreground: 220 25% 8%;
+      --secondary: 220 15% 15%;
+      --secondary-foreground: 220 15% 92%;
+      --muted: 220 15% 13%;
+      --muted-foreground: 220 10% 60%;
+      --accent: 174 72% 56%;
+      --accent-foreground: 220 25% 8%;
+      --destructive: 0 70% 55%;
+      --destructive-foreground: 0 0% 98%;
+      --warn: 38 92% 58%;
+      --border: 220 15% 18%;
+      --input: 220 15% 15%;
+      --ring: 174 72% 56%;
+
+      --beat-stripe: 220 15% 12%;
+      --grid-line: 220 15% 20%;
+      --led-shadow: 174 72% 56%;
+    }
+  }
+
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+
+  /* Interactive elements opt out of the browser's double-tap-to-zoom gesture.
+     Without this every tap on a grid cell waits ~300ms to find out whether a
+     second tap is coming, which reads as lag when building a beat by hand. */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role='switch'] {
+    touch-action: manipulation;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      'Inter var',
+      'Inter',
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    background-image:
+      radial-gradient(1000px 500px at 10% -10%, hsl(var(--primary) / 0.06), transparent 60%),
+      radial-gradient(800px 400px at 110% 0%, hsl(var(--warn) / 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  /* Embed mode: drop the body background so the iframe blends with the host
+     page. Panels and score host keep their own card styling. */
+  html.is-embed body {
+    background: none;
+  }
+  html.is-embed,
+  html.is-embed body,
+  html.is-embed #app {
+    height: auto;
+  }
+
+  /* numeric/mono elements */
+  .font-mono,
+  .tabular {
+    font-family:
+      'JetBrains Mono', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum', 'zero';
+  }
+
+  /* score svg — make it inherit colors so dark/light both work */
+  .score-host {
+    background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1rem 0.5rem;
+    overflow-x: auto;
+  }
+  .score-host {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .score-host svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .score-host svg text,
+  .score-host svg tspan {
+    fill: hsl(var(--foreground)) !important;
+  }
+  .score-host svg path:not([fill='none']),
+  .score-host svg rect:not([fill='none']) {
+    fill: hsl(var(--foreground));
+  }
+  .score-host svg path[fill='none'],
+  .score-host svg line {
+    stroke: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  /* Page shell. `svh` is the *small* viewport height: it stays constant while
+     Safari's address bar collapses and expands, so the layout never jumps
+     mid-scroll the way `vh` does. `vh` first as the fallback. */
+  .app-shell {
+    min-height: 100vh;
+    min-height: 100svh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Anything a finger has to hit. Visual size is left to the element; this only
+     guarantees the box a thumb can land on. Apple HIG asks 44pt, Material 48dp
+     — 44px plus the surrounding gutter lands the touch pitch at 48. */
+  .touch-target {
+    touch-action: manipulation;
+  }
+  @media (pointer: coarse) {
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Switches are deliberately tiny (28x16). Rather than redesign them, hang an
+     invisible hitbox off the pseudo-element so the finger target clears 44px
+     without changing layout or nudging the neighbouring number inputs. */
+  @media (pointer: coarse) {
+    button[role='switch'] {
+      position: relative;
+    }
+    button[role='switch']::before {
+      content: '';
+      position: absolute;
+      inset: -14px -6px;
+    }
+  }
+
+  /* The note grid: one label column, then one column per step. Both the cell
+     floor and the label width widen on touch devices; the cost is horizontal
+     scrolling, which 1.5 (edge fades + follow-playhead) is there to absorb. */
+  .note-grid {
+    display: grid;
+    gap: 4px;
+    grid-template-columns:
+      var(--lane-label-w, 96px)
+      repeat(var(--steps), minmax(var(--cell-min, 26px), 1fr));
+  }
+  @media (pointer: coarse) {
+    .note-grid {
+      /* 48px so a beat-start cell still clears 44 after its 4px marker gap. */
+      --cell-min: 48px;
+      --lane-label-w: 72px;
+    }
+  }
+
+  /* Gradient hints on a horizontal scroller: without them a phone user has no
+     way to know the bar continues past the right edge. */
+  .scroll-shell {
+    position: relative;
+  }
+  .scroll-edge {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 120ms ease-out;
+  }
+  .scroll-edge--left {
+    left: 0;
+    background: linear-gradient(to right, hsl(var(--card)), transparent);
+  }
+  .scroll-edge--right {
+    right: 0;
+    background: linear-gradient(to left, hsl(var(--card)), transparent);
+  }
+
+  .panel {
+    @apply rounded-lg border bg-card text-card-foreground;
+    box-shadow:
+      0 1px 0 0 hsl(var(--foreground) / 0.02),
+      0 1px 3px -1px hsl(var(--foreground) / 0.04);
+  }
+  .dark .panel {
+    box-shadow:
+      inset 0 1px 0 0 hsl(var(--foreground) / 0.04),
+      0 1px 0 0 hsl(0 0% 0% / 0.3);
+  }
+  @media (prefers-color-scheme: dark) {
+    html.is-embed:not(.theme-light):not(.dark) .panel {
+      box-shadow:
+        inset 0 1px 0 0 hsl(var(--foreground) / 0.04),
+        0 1px 0 0 hsl(0 0% 0% / 0.3);
+    }
+  }
+
+  .led-cell {
+    @apply relative rounded-[4px] border transition-all duration-100;
+    background: hsl(var(--muted));
+    border-color: hsl(var(--border));
+  }
+  .led-cell:hover:not(:disabled) {
+    border-color: hsl(var(--primary) / 0.6);
+  }
+  /* Cells own the horizontal axis so a drag across them paints; the browser
+     keeps the vertical one so the page still scrolls under a finger. The cost
+     is that the grid no longer flick-scrolls sideways over the cells — use the
+     lane labels or the measure header, which keep `touch-action: auto`. */
+  .led-cell {
+    touch-action: pan-y;
+  }
+  /* Scroll brush: give the horizontal axis back to the browser so a finger can
+     drag the grid sideways. Without this there is no way to reach step 24 of a
+     32nds bar on a phone, because every horizontal drag is a paint stroke. */
+  .is-panning .led-cell {
+    touch-action: auto;
+    cursor: grab;
+  }
+  .is-panning .led-cell:active {
+    cursor: grabbing;
+  }
+  .led-cell.inert-lane {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  /* Whitespace that marks where each beat (and each bar) starts. It is a left
+     margin, so it eats into the cell's own width — on touch devices it shrinks
+     to a token gap and the column floor grows to compensate. */
+  .led-cell.cell-gap {
+    margin-left: 1.25rem;
+  }
+  .led-cell.cell-gap-lg {
+    margin-left: 2rem;
+  }
+  /* min-height wins over the utility `h-9`, so the cell grows only where a
+     finger is the input device. */
+  @media (pointer: coarse) {
+    .led-cell {
+      min-height: 44px;
+    }
+    .led-cell.cell-gap {
+      margin-left: 4px;
+    }
+    .led-cell.cell-gap-lg {
+      margin-left: 8px;
+    }
+  }
+  .led-cell.beat {
+    background: hsl(var(--beat-stripe));
+    border-color: hsl(var(--grid-line));
+  }
+  .led-cell.filled {
+    background: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.18),
+      0 0 0 1px hsl(var(--primary) / 0.35),
+      0 0 10px -2px hsl(var(--led-shadow) / 0.6);
+  }
+  .led-cell.filled.accent {
+    background: hsl(var(--warn));
+    border-color: hsl(var(--warn));
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.25),
+      0 0 0 1px hsl(var(--warn) / 0.4),
+      0 0 10px -2px hsl(var(--warn) / 0.6);
+  }
+  .led-cell.active-step {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 1px;
+  }
+
+  /* Live MIDI hit feedback (used on first column when transport is stopped). */
+  .led-cell.live-hit {
+    animation: live-hit-pulse 250ms ease-out;
+    border-color: hsl(var(--primary));
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.55),
+      0 0 14px -2px hsl(var(--led-shadow) / 0.85);
+  }
+  .led-cell.live-hit:not(.filled) {
+    background: hsl(var(--primary) / 0.35);
+  }
+  @keyframes live-hit-pulse {
+    0% {
+      transform: scale(1.08);
+      box-shadow:
+        0 0 0 2px hsl(var(--primary) / 0.7),
+        0 0 18px -2px hsl(var(--led-shadow));
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Live MIDI marker — colored dot dropped on the cell when a hit lands
+     during playback. Pulses in on appearance and stays visible until the
+     editor clears it (count-in 3 of next loop). Color encodes verdict. */
+  .led-cell.live-marker::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: live-marker-appear 220ms ease-out;
+  }
+  .led-cell.live-marker-perfect::after {
+    background: hsl(160 70% 45%);
+    box-shadow: 0 0 8px hsl(160 70% 45% / 0.85);
+  }
+  .led-cell.live-marker-early::after {
+    background: hsl(200 85% 58%);
+    box-shadow: 0 0 8px hsl(200 85% 58% / 0.85);
+  }
+  .led-cell.live-marker-late::after {
+    background: hsl(28 90% 56%);
+    box-shadow: 0 0 8px hsl(28 90% 56% / 0.85);
+  }
+  .led-cell.live-marker-wrong-voice::after {
+    background: hsl(var(--warn));
+    box-shadow: 0 0 8px hsl(var(--warn) / 0.85);
+  }
+  .led-cell.live-marker-off-time::after {
+    background: hsl(var(--destructive));
+    box-shadow: 0 0 8px hsl(var(--destructive) / 0.85);
+  }
+  @keyframes live-marker-appear {
+    0% {
+      opacity: 0;
+      transform: scale(2.2);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .transport-play {
+    @apply inline-flex items-center justify-center rounded-full transition;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: radial-gradient(
+      circle at 30% 30%,
+      hsl(var(--primary)) 0%,
+      hsl(var(--primary) / 0.75) 100%
+    );
+    color: hsl(var(--primary-foreground));
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.25),
+      0 0 0 1px hsl(var(--primary) / 0.4),
+      0 4px 16px -4px hsl(var(--led-shadow) / 0.6);
+  }
+  .transport-play:hover {
+    filter: brightness(1.08);
+  }
+  .transport-play:active {
+    transform: translateY(1px);
+  }
+  .transport-play.playing {
+    background: radial-gradient(
+      circle at 30% 30%,
+      hsl(var(--warn)) 0%,
+      hsl(var(--warn) / 0.75) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.3),
+      0 0 0 1px hsl(var(--warn) / 0.5),
+      0 0 20px -2px hsl(var(--warn) / 0.5);
+  }
+
+  .tempo-display {
+    @apply font-mono font-semibold tabular leading-none;
+    letter-spacing: -0.02em;
+  }
+
+  .hairline-top {
+    background-image: linear-gradient(to bottom, hsl(var(--foreground) / 0.04), transparent 8px);
+  }
+
+  .app-toolbar {
+    @apply border-b backdrop-blur-md;
+    background: hsl(var(--background) / 0.7);
+  }
+}
+
+/* Guided tour (driver.js), themed to the app's design tokens. Two-class
+   selectors (.driver-popover.groove-tour) outrank driver.css defaults. */
+.driver-popover.groove-tour {
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 16px 48px -12px hsl(220 40% 2% / 0.45);
+  max-width: 320px;
+}
+.driver-popover.groove-tour .driver-popover-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+.driver-popover.groove-tour .driver-popover-description {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.driver-popover.groove-tour .driver-popover-progress-text {
+  color: hsl(var(--muted-foreground));
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.driver-popover.groove-tour .driver-popover-arrow {
+  border-color: hsl(var(--popover));
+}
+/* Keep room for the absolutely-positioned close button so the title never
+   slides under it. */
+.driver-popover.groove-tour .driver-popover-title {
+  padding-right: 1.25rem;
+}
+/* Navigation buttons (Back / Next / Done). Override driver's 4px gap with a
+   roomier one and reset the default left margin so the gap is the only spacer. */
+.driver-popover.groove-tour .driver-popover-navigation-btns {
+  gap: 0.5rem;
+}
+.driver-popover.groove-tour .driver-popover-navigation-btns button + button {
+  margin-left: 0;
+}
+.driver-popover.groove-tour button.driver-popover-next-btn,
+.driver-popover.groove-tour button.driver-popover-prev-btn {
+  all: unset;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.7rem;
+  border-radius: calc(var(--radius) - 0.2rem);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  transition:
+    color 120ms ease-out,
+    background 120ms ease-out,
+    border-color 120ms ease-out;
+}
+.driver-popover.groove-tour button.driver-popover-prev-btn:hover {
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--primary) / 0.5);
+}
+.driver-popover.groove-tour button.driver-popover-next-btn {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+.driver-popover.groove-tour button.driver-popover-next-btn:hover {
+  filter: brightness(1.08);
+}
+/* Close (×) button: driver positions it absolutely (top/right). Only retint it
+   — do NOT `all: unset`, which would strip that positioning and misplace it. */
+.driver-popover.groove-tour button.driver-popover-close-btn {
+  color: hsl(var(--muted-foreground));
+}
+.driver-popover.groove-tour button.driver-popover-close-btn:hover {
+  color: hsl(var(--foreground));
+}

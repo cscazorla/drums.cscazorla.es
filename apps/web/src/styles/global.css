@@ -343,16 +343,16 @@ a.tag:hover {
   white-space: pre-wrap;
 }
 
-/* Un compás por fila.
+/* Un compás por fila, a escala 1.
    Groove reparte los compases con `perRow = floor(disponible / anchoMínimo)`,
-   así que el mismo ancho decide cuántos caben Y cuánto mide cada uno: pedir un
-   compás por fila obliga a mantener el disponible por debajo de ~520px. En vez
-   de encoger sólo la partitura dentro de un iframe ancho — que dejaba el
-   recuadro oscuro flotando —, capamos el embed entero y lo centramos, así
-   partitura, recuadro y barra de transporte comparten ancho.
-   En móvil el tope es inerte, la pantalla ya es más estrecha. */
+   así que el mismo ancho decide cuántos caben Y cuánto mide cada uno. Con el
+   mínimo que ahora calcula VexFlow (~685px con semicorcheas), 780px deja sitio
+   justo para un compás por fila sin que el navegador tenga que encoger el SVG.
+   Capamos el embed entero y lo centramos, en vez de encoger sólo la partitura
+   dentro de un iframe ancho, así partitura, recuadro y transporte comparten
+   ancho. En móvil el tope es inerte: la pantalla ya es más estrecha. */
 .embed-frame {
-  max-inline-size: 560px;
+  max-inline-size: 780px;
   margin-inline: auto;
   margin-block-start: 1.75rem;
   border: 1px solid var(--border);

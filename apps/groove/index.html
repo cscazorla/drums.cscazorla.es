@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#10131a" />
+
+    <!-- Installable. Standalone drops the Safari chrome, which is worth about a
+         bar of grid on a phone. iOS ignores the manifest's icons and needs its
+         own apple-touch-icon; the status bar style keeps the notch area dark. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Groove" />
+    <meta name="description" content="A drum groove editor that lives entirely in the URL." />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Didact+Gothic&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+    <title>Groove — drum notation</title>
+    <script>
+      // Tianji analytics — only loads on the canonical hosted instance.
+      // Local dev, forks, and any self-hosted build skip this entirely.
+      // Self-hosters who'd rather not have it in their tree at all can
+      // delete this <script> block (or revert the commit that added it).
+      //
+      // Auto-track is OFF: by default Tianji wraps history.pushState /
+      // history.replaceState and fires a pageview on every change. The
+      // editor reencodes the groove into the URL hash on every cell
+      // edit (useUrlSync calls replaceState), which would spam the
+      // tracker. Instead we disable the wrapping and manually emit one
+      // pageview after the script loads — that records the visit
+      // without bookkeeping every keystroke.
+      //
+      // Iframes get an `embed-load` custom event instead of a pageview:
+      // the embed view is the same SPA, so a host page with N embeds
+      // would otherwise count as N pageviews per visit. Events still
+      // show up in Tianji but don't inflate the pageview metric.
+      if (location.hostname === 'guisso.dev') {
+        var inIframe
+        try {
+          inIframe = window.self !== window.top
+        } catch (e) {
+          inIframe = true
+        }
+        var s = document.createElement('script')
+        s.async = true
+        s.defer = true
+        s.src = 'https://tc.guisso.dev/tracker.js'
+        s.setAttribute('data-website-id', 'cmii1ghp20egvjpnvi3fc0asv')
+        s.setAttribute('data-auto-track', 'false')
+        s.onload = function () {
+          if (window.tianji && typeof window.tianji.track === 'function') {
+            if (inIframe) {
+              window.tianji.track('embed-load')
+            } else {
+              window.tianji.track()
+            }
+          }
+        }
+        document.head.appendChild(s)
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

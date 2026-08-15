@@ -9,12 +9,10 @@ No database and no backend: every exercise is a file.
 ## Getting started
 
 ```sh
-git clone --recurse-submodules git@github.com:cscazorla/drums.cscazorla.es.git
+git clone git@github.com:cscazorla/drums.cscazorla.es.git
 cd drums.cscazorla.es
 npm install
 ```
-
-If you already cloned without submodules: `git submodule update --init`.
 
 ## Creating an exercise
 
@@ -27,11 +25,11 @@ If you already cloned without submodules: `git submodule update --init`.
 
    One server for both the editor and the site. It serves the *compiled* copy
    of Groove, so run `npm run build:groove` once beforehand (and again after
-   updating the submodule).
+   changing anything under `apps/groove/`).
 
    Alternatively `npm run dev:groove` runs Groove's own dev server on
-   [localhost:5173](http://localhost:5173) straight from the submodule
-   sources, with no build step. Either one produces the same URLs.
+   [localhost:5173](http://localhost:5173) straight from the editor sources,
+   with no build step. Either one produces the same URLs.
 
 2. Build the groove. The URL updates by itself: the whole exercise is encoded
    in it.
@@ -162,8 +160,8 @@ reaching production.
 > **Caveat.** Groove's README warns that the payload format is not a stable
 > contract. Since the payload is all that is stored, a breaking codec change
 > upstream would leave the exercises unreadable, with nothing to regenerate
-> them from. Check a few exercises after running `git -C apps/groove pull`,
-> and hold off on the update if they break.
+> them from. Check a few exercises after taking any codec change from upstream,
+> and back it out if they break.
 
 ## Categories
 
@@ -240,76 +238,60 @@ measures 1.08:1 on a dark tab strip).
 
 ```
 apps/
-  groove/        submodule → cscazorla/groove, a GPL-3.0 fork of fguisso/groove
+  groove/        vendored copy of fguisso/groove (GPL-3.0) — see its NOTICE.md
   web/           Astro site
 exercises/       the exercises, one folder per category
 scripts/         authoring and validation CLI
 categories.json  categories and their order
 ```
 
-`scripts/groove-lib.ts` is the only point of contact with the submodule. It
+`scripts/groove-lib.ts` is the only point of contact with the editor code. It
 imports `decode`/`encode` from its `codec.ts`, which depends on just three
 other files with no external dependencies — that is why it works without
 installing anything inside `apps/groove`.
 
 ## Working on Groove
 
-`apps/groove` points at **[cscazorla/groove](https://github.com/cscazorla/groove)**,
-a fork of [fguisso/groove](https://github.com/fguisso/groove), so the editor
-can be changed here. It has two remotes:
-
-| remote | |
-|---|---|
-| `origin` | the fork — where your work lives |
-| `upstream` | `fguisso/groove` — where fixes and features come from |
-
-### Changing the editor
+`apps/groove` is a **copy** of [fguisso/groove](https://github.com/fguisso/groove)
+committed straight into this repository — no submodule, no fork. Edit it like
+any other code here.
 
 ```sh
 cd apps/groove
-git checkout -b my-change
-# …edit, then:
-npm run typecheck && npm run lint && npm test    # Groove's own gates
-git commit -am '…' && git checkout main && git merge my-change
-git push origin main
+# …edit, then run Groove's own gates:
+npm run typecheck && npm run lint && npm test
 
 cd ../..
 npm run build:groove          # rebuild the copy the site serves
-git add apps/groove           # pin the new commit
 ```
 
-> **Push the fork first, and commit `.gitmodules` alongside the new pin.**
-> A submodule records a commit id, not the code. If the pinned commit only
-> exists on your laptop, or `.gitmodules` still names the old repo, Netlify's
-> clone fails.
+`npm run build:groove` reinstalls Groove's dependencies and rebuilds it into
+`apps/web/public/groove/`, which is gitignored and regenerated. Run it after
+any change under `apps/groove/`, or the site keeps serving the old bundle.
 
-### Pulling upstream changes
+> **Record what you changed in [`apps/groove/NOTICE.md`](apps/groove/NOTICE.md).**
+> GPL-3 §5a asks that modified files say so and when. With the fork gone, that
+> file is the only record of how this copy differs from upstream.
+
+### Taking a fix from upstream
+
+There is no automatic path any more — that was the cost of dropping the
+submodule. Upstream is active, so when something there is worth having, diff
+the file by hand:
 
 ```sh
-git -C apps/groove fetch upstream
-git -C apps/groove merge upstream/main
-npm run build:groove
-npm run check                 # every payload still decodes?
+curl -sL https://raw.githubusercontent.com/fguisso/groove/main/src/lib/<file> \
+  | diff -u apps/groove/src/lib/<file> -
 ```
 
-If `npm run check` fails after a merge, the codec changed. Back the merge out
-rather than pin it — there is no way to regenerate the payloads.
-
-### License obligations
-
-The fork is GPL-3.0-or-later, like the original. Two things follow, and the
-fork satisfies both by existing: it is the **corresponding source** for the
-bundle this site serves, and its git history records **what changed and when**
-(GPL-3 §5a). Keep it public, and keep the original copyright notices intact.
-
-Fernando's README puts it plainly: copyleft reaches those who *modify,
-redistribute, or bundle* the source — which is now us. Sending a fix back
-upstream is courtesy, not obligation.
+Then apply what you want, rerun the gates and `build:groove`, and add a
+NOTICE.md entry. Check `npm run check` still passes: a codec change upstream
+would leave the stored payloads unreadable.
 
 ## Deployment
 
-Netlify, driven by `netlify.toml` at the root. The submodule is declared over
-HTTPS in `.gitmodules` because that is the only way Netlify can clone it.
+Netlify, driven by `netlify.toml` at the root. A plain `git clone` is all it
+needs — the editor sources live in this repository.
 
 Groove is served at `/groove/`, so the full editor is available in production.
 No rewrite rules are needed: Groove uses hash routing with a relative base,
@@ -327,8 +309,7 @@ This repository includes and distributes
 [Groove](https://github.com/fguisso/groove) by Fernando Guisso, copyright (C)
 2026, licensed under GPL-3.0-or-later.
 
-`apps/groove` is a submodule pinned to a commit of
-[cscazorla/groove](https://github.com/cscazorla/groove), a public fork of that
-project carrying local modifications. The fork is the corresponding source for
-the editor bundle served at `/groove/`, and its history records which files
-were changed and when.
+`apps/groove` is a copy of that project, carrying local modifications. This
+repository is therefore the corresponding source for the editor bundle served
+at `/groove/`, and [`apps/groove/NOTICE.md`](apps/groove/NOTICE.md) records
+which files were changed and when, as GPL-3 §5a requires.
